@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        canvas {
+            border: 1px solid #000;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+    <title>Simple Car Racing Game</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Car object
+        const car = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 80,
+            width: 40,
+            height: 60,
+            color: 'blue',
+            speed: 5
+        };
+
+        // Obstacle array
+        const obstacles = [];
+
+        // Handle player input
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && car.x > 0) {
+                car.x -= car.speed;
+            }
+            if (e.key === 'ArrowRight' && car.x < canvas.width - car.width) {
+                car.x += car.speed;
+            }
+        });
+
+        // Update game objects
+        function update() {
+            // Move obstacles
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += 3;
+
+                // Check for collisions with the car
+                if (
+                    car.x < obstacles[i].x + obstacles[i].width &&
+                    car.x + car.width > obstacles[i].x &&
+                    car.y < obstacles[i].y + obstacles[i].height &&
+                    car.y + car.height > obstacles[i].y
+                ) {
+                    alert('Game Over! Your score: ' + obstacles.length);
+                    resetGame();
+                }
+
+                // Remove obstacles that go off the screen
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            // Create new obstacles
+            if (Math.random() < 0.02) {
+                const obstacle = {
+                    x: Math.random() * (canvas.width - 30),
+                    y: -30,
+                    width: 30,
+                    height: 30,
+                    color: 'red'
+                };
+                obstacles.push(obstacle);
+            }
+        }
+
+        // Draw game objects
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw car
+            ctx.fillStyle = car.color;
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+
+            // Draw obstacles
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Reset game state
+        function resetGame() {
+            car.x = canvas.width / 2 - 20;
+            car.y = canvas.height - 80;
+            obstacles.length = 0;
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
